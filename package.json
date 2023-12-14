@@ -1,0 +1,20 @@
+{
+  "dependencies": {
+    "@okxweb3/coin-bitcoin": "^1.0.2",
+    "bitcoinjs-lib": "^6.1.5",
+    "core-js": "^3.34.0",
+    "ecpair": "^2.1.0",
+    "tiny-secp256k1": "^2.2.3"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.23.4",
+    "@babel/core": "^7.23.6",
+    "@babel/preset-env": "^7.23.6",
+    "babel-preset-env": "^1.7.0",
+    "browserify": "^17.0.0",
+    "esmify": "^2.1.1"
+  },
+  "scripts": {
+    "build": "babel src -d build"
+  }
+}

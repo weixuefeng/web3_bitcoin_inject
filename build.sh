@@ -1,0 +1,1 @@
+npx browserify -p esmify ./src/foobar.js -o bitcoinjs.js 
