@@ -13,5 +13,5 @@
     globalThis.TextEncoder = TextEncoder;
 
 globalThis.self = globalThis;
-myLib = require("@okxweb3/coin-bitcoin")
-module.exports = myLib;
+gateLib = require("@okxweb3/coin-bitcoin")
+module.exports = gateLib;
