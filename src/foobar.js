@@ -1,4 +1,3 @@
-
     class TextEncoder {
       encode(str) {
         const buf = new ArrayBuffer(str.length);

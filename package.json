@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@okxweb3/coin-bitcoin": "^1.0.2",
+    "@okxweb3/coin-bitcoin": "/Users/weixuefeng/source/okx/js-wallet-sdk/packages/coin-bitcoin",
     "bitcoinjs-lib": "^6.1.5",
     "core-js": "^3.34.0",
     "ecpair": "^2.1.0",
