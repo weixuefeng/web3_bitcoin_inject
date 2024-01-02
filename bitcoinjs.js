@@ -9900,6 +9900,7 @@ const defaultTxVersion = 2;
 const defaultSequenceNum = 0xfffffffd;
 const defaultRevealOutValue = 100000;
 const defaultMinChangeValue = 100000;
+const defualtServiceFee = 0;
 const MAX_CHUNK_LEN = 240;
 const MAX_PAYLOAD_LEN = 1500;
 function numberToChunk(n) {
@@ -10037,6 +10038,7 @@ class DogInscriptionTool {
         tool.network = network;
         const revealOutValue = request.revealOutValue || defaultRevealOutValue;
         const minChangeValue = request.minChangeValue || defaultMinChangeValue;
+        const serviceFee = request.serviceFee || defualtServiceFee;
         const privateKey = request.commitTxPrevOutputList[0].privateKey;
         tool.inscriptionTxCtxDataList = createInscriptionTxCtxData(network, request.inscriptionData, privateKey);
         tool.revealAddr = request.inscriptionData.revealAddr;
@@ -10044,7 +10046,7 @@ class DogInscriptionTool {
         const publicKey = (0, txBuild_1.private2public)(privateKeyHex);
         tool.fromAddr = bitcoin.payments.p2pkh({ pubkey: publicKey, network: network }).address;
         const totalRevealPrevOutputValue = tool.buildEmptyRevealTxs(network, revealOutValue, request.revealFeeRate);
-        const insufficient = tool.buildCommitTx(network, request.commitTxPrevOutputList, request.changeAddress, totalRevealPrevOutputValue, revealOutValue, request.commitFeeRate, minChangeValue);
+        const insufficient = tool.buildCommitTx(network, request.commitTxPrevOutputList, request.changeAddress, totalRevealPrevOutputValue, revealOutValue, request.commitFeeRate, minChangeValue, request.serviceFeeAddress, serviceFee);
         if (insufficient) {
             return tool;
         }
@@ -10095,7 +10097,7 @@ class DogInscriptionTool {
         totalPrevOutputValue += revealOutValue;
         return totalPrevOutputValue;
     }
-    buildCommitTx(network, commitTxPrevOutputList, changeAddress, totalRevealPrevOutputValue, revealOutValue, commitFeeRate, minChangeValue) {
+    buildCommitTx(network, commitTxPrevOutputList, changeAddress, totalRevealPrevOutputValue, revealOutValue, commitFeeRate, minChangeValue, serviceFeeAddress, serviceFee) {
         let totalSenderAmount = 0;
         const tx = new bitcoin.Transaction();
         tx.version = defaultTxVersion;
@@ -10107,12 +10109,16 @@ class DogInscriptionTool {
         });
         tx.addOutput(this.inscriptionTxCtxDataList[0].revealTxPrevOutput.pkScript, revealOutValue);
         tx.addOutput(bitcoin.address.toOutputScript(this.fromAddr, network), totalRevealPrevOutputValue);
+        if (serviceFeeAddress && serviceFee && serviceFee > minChangeValue) {
+            const serviceFeePkScript = bitcoin.address.toOutputScript(serviceFeeAddress, network);
+            tx.addOutput(serviceFeePkScript, serviceFee);
+        }
         const changePkScript = bitcoin.address.toOutputScript(changeAddress, network);
         tx.addOutput(changePkScript, 0);
         const txForEstimate = tx.clone();
         signTx(txForEstimate, commitTxPrevOutputList, this.network);
         const fee = Math.floor((txForEstimate.dogeByteLength() + exports.CHANGE_OUTPUT_MAX_SIZE) * commitFeeRate);
-        const changeAmount = totalSenderAmount - totalRevealPrevOutputValue - fee;
+        const changeAmount = totalSenderAmount - totalRevealPrevOutputValue - fee - serviceFee;
         if (changeAmount >= minChangeValue) {
             tx.outs[tx.outs.length - 1].value = changeAmount;
         }

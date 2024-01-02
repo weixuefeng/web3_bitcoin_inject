@@ -26,6 +26,8 @@ async function drc20Test() {
         revealOutValue: 100000,
         inscriptionData,
         changeAddress: "DFuDR3Vn22KMnrnVCxh6YavMAJP8TCPeA2",
+        serviceFeeAddress: "DLJyiwJW9MANqg36e5W89CR9BgQww5nEZR",
+        serviceFee: 200000
     };
     let result = await wallet.signTransaction({privateKey: privateKey, data: request})
     console.log(result);
