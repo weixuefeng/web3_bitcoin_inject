@@ -1,4 +1,4 @@
-const { wif } = require("@okxweb3/coin-bitcoin");
+const { wif, DogeWallet } = require("@okxweb3/coin-bitcoin");
 
 require("./bitcoinjs.js")
 
@@ -26,6 +26,12 @@ bip49: 2N8K5skN5dFAbSCfDuSp4QAa1sZ8Jw2P77V
 bip84: bcrt1qyzqvgn8qcxkkneymz83kfdzcfr8nm2xvm7sara
 bip86: bcrt1prn9txsu3dvz409svqpgt4cu3mwfgz2y2qll8ra67yya4ynarkzfsjejacj
      */
+}
+
+function transferUsdt() {
+    var wallet = new DogeWallet()
+    var input = 
+    wallet.signTransaction()
 }
 var contentType = "text/plain;charset=utf-8";
 var body = JSON.stringify({"p":"brc-20","op":"deploy","tick":"bc1p","amt":"1000"});

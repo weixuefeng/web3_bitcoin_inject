@@ -1,7 +1,6 @@
 require("../bitcoinjs.js")
 
 async function drc20Test() {
-    console.log(gateCryptoLib)
     let wallet = new gateLib.DogeWallet()
     let privateKey = "QV3XGHS28fExYMnEsoXrzRr7bjQbCH1qRPfPCMLBKhniWF4uFEcs"
     const commitTxPrevOutputList = [];
@@ -17,7 +16,7 @@ async function drc20Test() {
         body: gateCryptoLib.base.fromHex(gateCryptoLib.base.toHex(Buffer.from('{"p":"drc-20","op":"mint","tick":"tril","amt":"100"}'))),
         revealAddr: "DFuDR3Vn22KMnrnVCxh6YavMAJP8TCPeA2",
     };
-
+    console.log(inscriptionData)
     const request = {
         type: 1,
         commitTxPrevOutputList,
@@ -32,4 +31,34 @@ async function drc20Test() {
     let result = await wallet.signTransaction({privateKey: privateKey, data: request})
     console.log(result);
 }
-drc20Test()
+
+ async function transferDrc20Test() {
+    let wallet = new gateLib.DogeWallet()
+    let btcTxParams = {
+    inputs: [
+        {
+        txId: "a7edebed3f2e51a2ed99a3625fb408bd9db2ce61b1794880b3f214b26bf7a023",
+        vOut: 0,
+        amount: 250000
+        },
+    ],
+    outputs: [
+        {
+            address: "tb1qtsq9c4fje6qsmheql8gajwtrrdrs38kdzeersc",
+            amount: 150000
+        },
+        {
+            address: "mouQtmBWDS7JnT65Grj2tPzdSmGKJgRMhE",
+            amount: 50000
+        },
+    ],
+        address: "2NF33rckfiQTiE5Guk5ufUdwms8PgmtnEdc",
+        feePerB: 2
+    };
+
+    let signParams = {
+        privateKey: "L22jGDH5pKE4WHb2m9r2MdiWTtGarDhTYRqMrntsjD5uCq5z9ahY",
+        data: btcTxParams
+    };
+    let tx = await wallet.signTransaction(signParams);
+ }
