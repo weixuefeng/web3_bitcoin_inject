@@ -1021,7 +1021,7 @@
   resolved "https://registry.yarnpkg.com/@noble/secp256k1/-/secp256k1-1.7.1.tgz#b251c70f824ce3ca7f8dc3df08d58f005cc0507c"
   integrity sha512-hOUk6AyBFmqVrv7k5WAw/LpszxVbj9gGN4JRkIX52fdFAj1UA61KXmZDvqVEm+pOyec3+fIeZB02LYa/pWOArw==
 
-"@okxweb3/coin-base@^1.0.0":
+"@okxweb3/coin-base@^1.0.5":
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/@okxweb3/coin-base/-/coin-base-1.0.6.tgz#cca78c1b5cdddce8253cc8ad88acd3a189ee9f0a"
   integrity sha512-aZvldwsz+8GZy6pkoLVbjrc7t3DI/ZHT4rfcCJsQ4eGSfdRNLtwmU5/9052666gpatvQUp6QgvoZvYhpmVpNpA==
@@ -1029,13 +1029,13 @@
     "@okxweb3/crypto-lib" "^1.0.0"
 
 "@okxweb3/coin-bitcoin@file:../../okx/js-wallet-sdk/packages/coin-bitcoin":
-  version "1.0.3"
+  version "1.0.7-beta.0"
   dependencies:
-    "@okxweb3/coin-base" "^1.0.0"
-    "@okxweb3/crypto-lib" "^1.0.0"
+    "@okxweb3/coin-base" "^1.0.5"
+    "@okxweb3/crypto-lib" "^1.0.1"
     big-integer "1.6.36"
 
-"@okxweb3/crypto-lib@^1.0.0":
+"@okxweb3/crypto-lib@^1.0.0", "@okxweb3/crypto-lib@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@okxweb3/crypto-lib/-/crypto-lib-1.0.1.tgz#60173a7aab56b9685da0056d625b9d39f68e804f"
   integrity sha512-sHzKFefA042yn6/KzTHmK4XqGrCKoykltcpMaZjEEywCFCocS1r8sD/GBcELQC4JP3kIvd2tbW+tzMO8UOv1kQ==

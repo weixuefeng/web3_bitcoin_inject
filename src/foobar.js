@@ -13,4 +13,5 @@
 
 globalThis.self = globalThis;
 gateLib = require("@okxweb3/coin-bitcoin")
+gateCryptoLib = require("@okxweb3/crypto-lib")
 module.exports = gateLib;
