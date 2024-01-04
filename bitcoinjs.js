@@ -10576,7 +10576,8 @@ function createInscriptionTxCtxData(network, inscriptionData, privateKeyWif) {
         inscriptionBuilder.push(ops.OP_0);
         inscriptionBuilder.push(ops.OP_IF);
         inscriptionBuilder.push(Buffer.from("ord"));
-        inscriptionBuilder.push(ops.OP_1);
+        inscriptionBuilder.push(ops.OP_DATA_1);
+        inscriptionBuilder.push(ops.OP_DATA_1);
         inscriptionBuilder.push(Buffer.from(inscriptionData.contentType));
         inscriptionBuilder.push(ops.OP_0);
         const maxChunkSize = 520;
