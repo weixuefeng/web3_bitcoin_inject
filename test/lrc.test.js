@@ -1,6 +1,7 @@
-const { wif } = require("@okxweb3/coin-bitcoin");
+const { wif, LtcWallet } = require("@okxweb3/coin-bitcoin");
 
 require("../bitcoinjs.js")
+
 
 async function lrc20Test() {
     let privateKeyHex = "486403caef2ef30e6653d024e90b9d158dcac0845d5bbfd1210e15b7c7490720"
@@ -35,6 +36,7 @@ async function lrc20Test() {
         changeAddress: fromAddress,
       };
     var res = gateLib.inscribe(gateLib.litecoin, request);
+    console.log(gateLib.litecoin)
     console.log(res);
 }
 // ltc commit: 05d4ba29f568827748d1640876e79c8930091519d0e4d20075166d2d0e370f3d
