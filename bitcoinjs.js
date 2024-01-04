@@ -10375,6 +10375,7 @@ const taproot = __importStar(require("./taproot"));
 const bcrypto = __importStar(require("./bitcoinjs-lib/crypto"));
 const transaction_1 = require("./bitcoinjs-lib/transaction");
 const txBuild_1 = require("./txBuild");
+const wallet_1 = require("./wallet");
 const schnorr = crypto_lib_1.signUtil.schnorr.secp256k1.schnorr;
 const defaultTxVersion = 2;
 const defaultSequenceNum = 0xfffffffd;
@@ -10567,26 +10568,49 @@ function createInscriptionTxCtxData(network, inscriptionData, privateKeyWif) {
     const internalPubKey = (0, txBuild_1.wif2Public)(privateKeyWif, network).slice(1);
     const ops = bitcoin.script.OPS;
     const inscriptionBuilder = [];
-    inscriptionBuilder.push(internalPubKey);
-    inscriptionBuilder.push(ops.OP_CHECKSIG);
-    inscriptionBuilder.push(ops.OP_FALSE);
-    inscriptionBuilder.push(ops.OP_IF);
-    inscriptionBuilder.push(Buffer.from("ord"));
-    inscriptionBuilder.push(ops.OP_DATA_1);
-    inscriptionBuilder.push(ops.OP_DATA_1);
-    inscriptionBuilder.push(Buffer.from(inscriptionData.contentType));
-    inscriptionBuilder.push(ops.OP_0);
-    const maxChunkSize = 520;
-    let body = Buffer.from(inscriptionData.body);
-    let bodySize = body.length;
-    for (let i = 0; i < bodySize; i += maxChunkSize) {
-        let end = i + maxChunkSize;
-        if (end > bodySize) {
-            end = bodySize;
+    if (network == wallet_1.litecoin) {
+        inscriptionBuilder.push(internalPubKey);
+        inscriptionBuilder.push(ops.OP_CHECKSIG);
+        inscriptionBuilder.push(ops.OP_0);
+        inscriptionBuilder.push(ops.OP_IF);
+        inscriptionBuilder.push(Buffer.from("ord"));
+        inscriptionBuilder.push(ops.OP_1);
+        inscriptionBuilder.push(Buffer.from(inscriptionData.contentType));
+        inscriptionBuilder.push(ops.OP_0);
+        const maxChunkSize = 520;
+        let body = Buffer.from(inscriptionData.body);
+        let bodySize = body.length;
+        for (let i = 0; i < bodySize; i += maxChunkSize) {
+            let end = i + maxChunkSize;
+            if (end > bodySize) {
+                end = bodySize;
+            }
+            inscriptionBuilder.push(body.slice(i, end));
         }
-        inscriptionBuilder.push(body.slice(i, end));
+        inscriptionBuilder.push(ops.OP_ENDIF);
     }
-    inscriptionBuilder.push(ops.OP_ENDIF);
+    else {
+        inscriptionBuilder.push(internalPubKey);
+        inscriptionBuilder.push(ops.OP_CHECKSIG);
+        inscriptionBuilder.push(ops.OP_FALSE);
+        inscriptionBuilder.push(ops.OP_IF);
+        inscriptionBuilder.push(Buffer.from("ord"));
+        inscriptionBuilder.push(ops.OP_DATA_1);
+        inscriptionBuilder.push(ops.OP_DATA_1);
+        inscriptionBuilder.push(Buffer.from(inscriptionData.contentType));
+        inscriptionBuilder.push(ops.OP_0);
+        const maxChunkSize = 520;
+        let body = Buffer.from(inscriptionData.body);
+        let bodySize = body.length;
+        for (let i = 0; i < bodySize; i += maxChunkSize) {
+            let end = i + maxChunkSize;
+            if (end > bodySize) {
+                end = bodySize;
+            }
+            inscriptionBuilder.push(body.slice(i, end));
+        }
+        inscriptionBuilder.push(ops.OP_ENDIF);
+    }
     const inscriptionScript = bitcoin.script.compile(inscriptionBuilder);
     const scriptTree = {
         output: inscriptionScript,
@@ -10636,7 +10660,7 @@ function inscribe(network, request) {
 exports.inscribe = inscribe;
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./bitcoinjs-lib":44,"./bitcoinjs-lib/crypto":43,"./bitcoinjs-lib/transaction":65,"./taproot":76,"./txBuild":77,"@okxweb3/crypto-lib":157,"buffer":414}],71:[function(require,module,exports){
+},{"./bitcoinjs-lib":44,"./bitcoinjs-lib/crypto":43,"./bitcoinjs-lib/transaction":65,"./taproot":76,"./txBuild":77,"./wallet":86,"@okxweb3/crypto-lib":157,"buffer":414}],71:[function(require,module,exports){
 (function (Buffer){(function (){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -11442,6 +11466,7 @@ const PART_LEN = 31;
 const defaultSequenceNum = 0xfffffffd;
 const defaultRevealOutValue = 7800;
 const defaultMinChangeValue = 7800;
+const defualtServiceFee = 0;
 const maxStandardTxWeight = 4000000 / 10;
 class SrcInscriptionTool {
     constructor() {
@@ -11459,14 +11484,15 @@ class SrcInscriptionTool {
         tool.network = network;
         const revealOutValue = request.revealOutValue || defaultRevealOutValue;
         const minChangeValue = request.minChangeValue || defaultMinChangeValue;
-        const insufficient = tool.buildCommitTx(network, request.inscriptionData, revealOutValue, request.commitTxPrevOutputList, request.changeAddress, request.commitFeeRate, minChangeValue);
+        const serviceFee = request.serviceFee || defualtServiceFee;
+        const insufficient = tool.buildCommitTx(network, request.inscriptionData, revealOutValue, request.commitTxPrevOutputList, request.changeAddress, request.commitFeeRate, minChangeValue, serviceFee, request.serviceFeeAddress);
         if (insufficient) {
             return tool;
         }
         tool.signCommitTx(request.commitTxPrevOutputList);
         return tool;
     }
-    buildCommitTx(network, inscriptionData, revealOutValue, commitTxPrevOutputList, changeAddress, commitFeeRate, minChangeValue) {
+    buildCommitTx(network, inscriptionData, revealOutValue, commitTxPrevOutputList, changeAddress, commitFeeRate, minChangeValue, serviceFee, serviceFeeAddress) {
         let prefix = Buffer.from(inscriptionData.contentType);
         let body = Buffer.from(inscriptionData.body);
         while (body[body.length - 1] == 0) {
@@ -11517,12 +11543,16 @@ class SrcInscriptionTool {
             this.commitTxPrevOutputFetcher.push(commitTxPrevOutput.amount);
             totalSenderAmount += commitTxPrevOutput.amount;
         });
+        if (serviceFee > defaultMinChangeValue && serviceFeeAddress) {
+            const servicePkScript = bitcoin.address.toOutputScript(serviceFeeAddress, network);
+            tx.addOutput(servicePkScript, serviceFee);
+        }
         const changePkScript = bitcoin.address.toOutputScript(changeAddress, network);
         tx.addOutput(changePkScript, 0);
         const txForEstimate = tx.clone();
         signTx(txForEstimate, commitTxPrevOutputList, this.network);
         const fee = Math.floor(txForEstimate.virtualSize() * commitFeeRate);
-        const changeAmount = totalSenderAmount - totalRevealPrevOutputValue - fee;
+        const changeAmount = totalSenderAmount - totalRevealPrevOutputValue - fee - serviceFee;
         if (changeAmount >= minChangeValue) {
             tx.outs[tx.outs.length - 1].value = changeAmount;
         }
